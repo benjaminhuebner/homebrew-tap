@@ -1,0 +1,33 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash -xeuo pipefail {0}
+
+jobs:
+  casks:
+    runs-on: macos-26
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    env:
+      TAP: benjaminhuebner/tap
+    steps:
+      - name: Set up Homebrew
+        uses: Homebrew/actions/setup-homebrew@ceec4e8419bb3c97ce96e9dda7738499ed5f869d # 2026.11.14.1
+
+      - name: Test the casks
+        run: .github/scripts/test-casks.sh "$TAP"
